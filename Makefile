@@ -21,5 +21,5 @@ all : ./bin/main.exe
 clean:
 	rm -f ./bin/*.o ./bin/main.exe
 
-run:
+run: all
 	./bin/main.exe
