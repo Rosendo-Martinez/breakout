@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "GameLevel.h"
+#include <GLFW/glfw3.h>
 
 enum GameState
 {

@@ -2,6 +2,11 @@
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
 
+const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
+const float PLAYER_VELOCITY(500.0f);
+
+GameObject *Player;
+
 Game::Game(unsigned  int width, unsigned int height)
     : State(GAME_ACTIVE), Keys(), Width(width), Height(height) // initialize state
 {
@@ -31,6 +36,7 @@ void Game::Init()
     ResourceManager::LoadTexture("textures/awesomeface.png", true, "face");
     ResourceManager::LoadTexture("textures/block.png", false, "block");
     ResourceManager::LoadTexture("textures/block_solid.png", false, "block_solid");
+    ResourceManager::LoadTexture("textures/paddle.png", true, "paddle");
 
     // Levels
     GameLevel one; one.Load("levels/one.lvl", this->Width, this->Height / 2);
@@ -42,10 +48,33 @@ void Game::Init()
     this->Levels.push_back(three);
     this->Levels.push_back(four);
     this->Level = 0;
+
+    // Player
+    glm::vec2 playerPos = glm::vec2(this->Width / 2.0f - PLAYER_SIZE.x / 2.0f, this->Height - PLAYER_SIZE.y);
+    Player = new GameObject(playerPos, PLAYER_SIZE, ResourceManager::GetTexture("paddle"));
 }
 
 void Game::ProcessInput(float dt)
 {
+    if (this->State == GAME_ACTIVE)
+    {
+        float distanceMoved = PLAYER_VELOCITY * dt;
+
+        if (this->Keys[GLFW_KEY_A]) // left
+        {
+            if (Player->Position.x >= 0.0f)
+            {
+                Player->Position.x -= distanceMoved;
+            }
+        }
+        if (this->Keys[GLFW_KEY_D]) // right
+        {
+            if (Player->Position.x <= this->Width - Player->Size.x)
+            {
+                Player->Position.x += distanceMoved;
+            }
+        }
+    }
 }
 
 void Game::Update(float dt)
@@ -63,5 +92,8 @@ void Game::Render()
 
         // draw level
         this->Levels[this->Level].Draw(*Renderer);
+
+        // draw player (paddle)
+        Player->Draw(*Renderer);
     }
 }
