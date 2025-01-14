@@ -65,6 +65,12 @@ void Game::ProcessInput(float dt)
             if (Player->Position.x >= 0.0f)
             {
                 Player->Position.x -= distanceMoved;
+
+                // left boundary
+                if (Player->Position.x < 0.0f)
+                {
+                    Player->Position.x = 0.0f;
+                }
             }
         }
         if (this->Keys[GLFW_KEY_D]) // right
@@ -72,6 +78,12 @@ void Game::ProcessInput(float dt)
             if (Player->Position.x <= this->Width - Player->Size.x)
             {
                 Player->Position.x += distanceMoved;
+            }
+
+            // right boundary
+            if (Player->Position.x > this->Width - Player->Size.x)
+            {
+                Player->Position.x = this->Width - Player->Size.x;
             }
         }
     }
