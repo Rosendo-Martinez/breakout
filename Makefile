@@ -15,8 +15,14 @@ all : ./bin/main.exe
 ./bin/SpriteRenderer.o : ./src/Shader.h ./src/Texture.h
 	g++ -c ./src/SpriteRenderer.cpp -o ./bin/SpriteRenderer.o -I./dep/glad/include -I./dep/
 
-./bin/main.exe : ./src/Game.h ./src/ResourceManager.h ./bin/Game.o ./bin/Texture.o ./bin/Shader.o ./bin/ResourceManager.o ./bin/SpriteRenderer.o
-	g++ ./src/main.cpp ./dep/glad/src/glad.c  ./bin/Game.o ./bin/Texture.o ./bin/Shader.o ./bin/ResourceManager.o ./bin/SpriteRenderer.o -o ./bin/main.exe -I./dep/glad/include -I./dep/ -lglfw -ldl
+./bin/main.exe : ./src/Game.h ./src/ResourceManager.h ./bin/Game.o ./bin/Texture.o ./bin/Shader.o ./bin/ResourceManager.o ./bin/SpriteRenderer.o ./bin/GameLevel.o ./bin/GameObject.o
+	g++ ./src/main.cpp ./dep/glad/src/glad.c  ./bin/Game.o ./bin/Texture.o ./bin/Shader.o ./bin/ResourceManager.o ./bin/SpriteRenderer.o ./bin/GameLevel.o ./bin/GameObject.o -o ./bin/main.exe -I./dep/glad/include -I./dep/ -lglfw -ldl
+
+./bin/GameLevel.o : ./src/GameLevel.h ./src/GameLevel.cpp
+	g++ -c ./src/GameLevel.cpp -o ./bin/GameLevel.o -I./dep/glad/include -I./dep/
+
+./bin/GameObject.o : ./src/GameObject.h ./src/GameObject.cpp 
+	g++ -c ./src/GameObject.cpp -o ./bin/GameObject.o -I./dep/glad/include -I./dep/
 
 clean:
 	rm -f ./bin/*.o ./bin/main.exe
