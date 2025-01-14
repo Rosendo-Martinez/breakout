@@ -3,13 +3,37 @@
 #include "SpriteRenderer.h"
 #include "BallObject.h"
 
-
+/**
+ * AABB-AABB collision detection.
+ */
 bool CheckCollision(GameObject &one, GameObject &two)
 {
     bool collisionX = (one.Position.x + one.Size.x >= two.Position.x) && (two.Position.x + two.Size.x >= one.Position.x); 
     bool collisionY = (one.Position.y + one.Size.y >= two.Position.y) && (two.Position.y + two.Size.y >= one.Position.y); 
 
     return collisionX && collisionY;
+}
+
+/**
+ * Circle-AABB collision detection.
+ */
+bool CheckCollision(BallObject &one, GameObject &two)
+{
+    glm::vec2 center(one.Position + one.Radius);
+
+    glm::vec2 aabbHalfSize(two.Size / 2.0f);
+    glm::vec2 aabbCenter(two.Position + aabbHalfSize);
+
+    glm::vec2 difference = center - aabbCenter;
+    glm::vec2 clamped = glm::clamp(difference, -aabbHalfSize, aabbHalfSize);
+
+    glm::vec2 closest = aabbCenter + clamped; // either point on edge of aabb, or point inside it
+    difference = closest - center; 
+
+    // length(difference) = 0      --> circle center inside aabb
+    // length(difference) < radius --> part of circle inside aabb (but not center)
+    // length(difference) > radius --> circle and aabb do NOT touch
+    return glm::length(difference) < one.Radius;
 }
 
 const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
