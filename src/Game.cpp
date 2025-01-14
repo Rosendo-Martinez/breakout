@@ -3,6 +3,15 @@
 #include "SpriteRenderer.h"
 #include "BallObject.h"
 
+
+bool CheckCollision(GameObject &one, GameObject &two)
+{
+    bool collisionX = (one.Position.x + one.Size.x >= two.Position.x) && (two.Position.x + two.Size.x >= one.Position.x); 
+    bool collisionY = (one.Position.y + one.Size.y >= two.Position.y) && (two.Position.y + two.Size.y >= one.Position.y); 
+
+    return collisionX && collisionY;
+}
+
 const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
 const float PLAYER_VELOCITY(500.0f);
 
@@ -117,6 +126,7 @@ void Game::ProcessInput(float dt)
 void Game::Update(float dt)
 {
     Ball->Move(dt, this->Width);
+    this->DoCollisions();
 }
 
 void Game::Render()
@@ -134,5 +144,23 @@ void Game::Render()
 
         // draw ball
         Ball->Draw(*Renderer);
+    }
+}
+
+void Game::DoCollisions()
+{
+    // Ball-brick collision
+    for (GameObject &box : this->Levels[this->Level].Bricks)
+    {
+        if (!box.Destroyed)
+        {
+            if (CheckCollision(*Ball, box))
+            {
+                if (!box.IsSolid)
+                {
+                    box.Destroyed = true;
+                }
+            }
+        }
     }
 }

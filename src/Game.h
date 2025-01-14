@@ -26,6 +26,8 @@ class Game
         // loads assets
         void Init();
 
+        void DoCollisions();
+
         // game loop
         void ProcessInput(float dt); // why does this need dt?
         void Update(float dt); // this makes sense why it would need dt.
