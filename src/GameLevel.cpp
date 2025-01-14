@@ -36,6 +36,8 @@ void GameLevel::Load(const char *file, unsigned int levelWidth, unsigned int lev
             {
                 row.push_back(tileCode);
             }
+
+            tileData.push_back(row);
         }
 
         if (tileData.size() > 0)
