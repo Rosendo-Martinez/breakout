@@ -269,4 +269,20 @@ void Game::DoCollisions()
             }
         }
     }
+
+    // Ball-paddle collision
+    Collision result = CheckCollision(*Ball, *Player);
+    if (!Ball->Stuck && std::get<0>(result))
+    {
+        float centerPaddle = Player->Position.x + (Player->Size.x/2.0f);
+        float distance = (Ball->Position.x + Ball->Radius) - centerPaddle; // player_center - paddle_center
+        float percentage = distance / (Player->Size.x / 2.0f); // sign (+/-) indicates which side (left/right) of paddle player is on
+
+        // Ball direction changes, but speed stays the same.
+        float strength = 2.0f;
+        glm::vec2 oldVelocity = Ball->Velocity;
+        Ball->Velocity.x = INITIAL_BALL_VELOCITY.x * percentage * strength;
+        Ball->Velocity.y = -Ball->Velocity.y;
+        Ball->Velocity = glm::normalize(Ball->Velocity) * glm::length(oldVelocity);
+    }
 }
