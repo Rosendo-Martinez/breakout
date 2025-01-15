@@ -42,6 +42,8 @@ class Game
         void Init();
 
         void DoCollisions();
+        void ResetLevel();
+        void ResetPlayer();
 
         // game loop
         void ProcessInput(float dt); // why does this need dt?

@@ -195,6 +195,12 @@ void Game::Update(float dt)
 {
     Ball->Move(dt, this->Width);
     this->DoCollisions();
+
+    if (Ball->Position.y >= this->Height) // player lost ball
+    {
+        this->ResetLevel();
+        this->ResetPlayer();
+    }
 }
 
 void Game::Render()
@@ -285,4 +291,26 @@ void Game::DoCollisions()
         Ball->Velocity.y = -1.0f * abs(Ball->Velocity.y);
         Ball->Velocity = glm::normalize(Ball->Velocity) * glm::length(oldVelocity);
     }
+}
+
+void Game::ResetLevel()
+{
+    for (GameObject &box : this->Levels[this->Level].Bricks)
+    {
+        box.Destroyed = false;
+    }
+}
+
+/**
+ * Resets player, and ball.
+ */
+void Game::ResetPlayer()
+{
+    // Reset player (paddle)
+    Player->Position = glm::vec2(this->Width / 2.0f - PLAYER_SIZE.x / 2.0f, this->Height - PLAYER_SIZE.y);
+
+    // Reset ball
+    Ball->Position = Player->Position + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -BALL_RADIUS * 2.0f);
+    Ball->Stuck = true;
+    Ball->Velocity = INITIAL_BALL_VELOCITY;
 }
