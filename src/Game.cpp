@@ -295,10 +295,14 @@ void Game::DoCollisions()
 
 void Game::ResetLevel()
 {
-    for (GameObject &box : this->Levels[this->Level].Bricks)
-    {
-        box.Destroyed = false;
-    }
+    if (this->Level == 0)
+        this->Levels[0].Load("levels/one.lvl", this->Width, this->Height / 2);
+    else if (this->Level == 1)
+        this->Levels[1].Load("levels/two.lvl", this->Width, this->Height / 2);
+    else if (this->Level == 2)
+        this->Levels[2].Load("levels/three.lvl", this->Width, this->Height / 2);
+    else if (this->Level == 3)
+        this->Levels[3].Load("levels/four.lvl", this->Width, this->Height / 2);
 }
 
 /**
@@ -307,10 +311,9 @@ void Game::ResetLevel()
 void Game::ResetPlayer()
 {
     // Reset player (paddle)
+    Player->Size = PLAYER_SIZE;
     Player->Position = glm::vec2(this->Width / 2.0f - PLAYER_SIZE.x / 2.0f, this->Height - PLAYER_SIZE.y);
 
     // Reset ball
-    Ball->Position = Player->Position + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -BALL_RADIUS * 2.0f);
-    Ball->Stuck = true;
-    Ball->Velocity = INITIAL_BALL_VELOCITY;
+    Ball->Reset(Player->Position + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -BALL_RADIUS * 2.0f), INITIAL_BALL_VELOCITY);
 }
