@@ -4,6 +4,21 @@
 #include "GameLevel.h"
 #include <GLFW/glfw3.h>
 
+/**
+ * Up is +y
+ * Down is -y
+ * Left is -x
+ * Right is +x
+ * 
+ * Note: In screen coordinate, UP points down due to +y pointing down!
+ */
+enum Direction {
+	UP,
+	RIGHT,
+	DOWN,
+	LEFT
+};
+
 enum GameState
 {
     GAME_ACTIVE,

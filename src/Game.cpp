@@ -2,6 +2,34 @@
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
 #include "BallObject.h"
+#include <tuple>
+
+typedef std::tuple<bool, Direction, glm::vec2> Collision;   
+
+/**
+ * Returns direction that vector points.
+ */
+Direction VectorDirection(glm::vec2 target)
+{
+    glm::vec2 compass[] = {
+        glm::vec2(0.0f, 1.0f),	// up
+        glm::vec2(1.0f, 0.0f),	// right
+        glm::vec2(0.0f, -1.0f),	// down
+        glm::vec2(-1.0f, 0.0f)	// left
+    };
+    float max = 0.0f;
+    unsigned int best_match = -1;
+    for (unsigned int i = 0; i < 4; i++)
+    {
+        float dot_product = glm::dot(glm::normalize(target), compass[i]);
+        if (dot_product > max)
+        {
+            max = dot_product;
+            best_match = i;
+        }
+    }
+    return (Direction)best_match;
+}
 
 /**
  * AABB-AABB collision detection.
@@ -17,7 +45,7 @@ bool CheckCollision(GameObject &one, GameObject &two)
 /**
  * Circle-AABB collision detection.
  */
-bool CheckCollision(BallObject &one, GameObject &two)
+Collision CheckCollision(BallObject &one, GameObject &two)
 {
     glm::vec2 center(one.Position + one.Radius);
 
@@ -30,10 +58,26 @@ bool CheckCollision(BallObject &one, GameObject &two)
     glm::vec2 closest = aabbCenter + clamped; // either point on edge of aabb, or point inside it
     difference = closest - center; 
 
-    // length(difference) = 0      --> circle center inside aabb
-    // length(difference) < radius --> part of circle inside aabb (but not center)
-    // length(difference) > radius --> circle and aabb do NOT touch
-    return glm::length(difference) < one.Radius;
+    // length(difference) = 0       --> circle center inside aabb
+    // length(difference) <= radius --> part of circle inside aabb (but not center)
+    // length(difference) > radius  --> circle and aabb do NOT touch
+
+    // WARNING: I don't think this CC can handle the case where the ball's center is inside
+    //          the AABB, because difference would just be:
+    //              difference = CIRCLE_CENTER - AABB_CENTER
+    //          If circle is centred on AABB center then:
+    //              difference = 0;
+    //          However, it would work if circle is // reverse horizontal directiontouching/inside AABB, but not its center.
+
+
+    if (glm::length(difference) <= one.Radius) // collision
+    {
+        return std::make_tuple(true, VectorDirection(difference), difference);
+    }
+    else // no collision
+    {
+        return std::make_tuple(false, UP, glm::vec2(0.0f,0.0f));
+    }
 }
 
 const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
@@ -178,11 +222,49 @@ void Game::DoCollisions()
     {
         if (!box.Destroyed)
         {
-            if (CheckCollision(*Ball, box))
+            Collision collision = CheckCollision(*Ball, box);
+            if (std::get<0>(collision)) // collision occurred
             {
-                if (!box.IsSolid)
+                if (!box.IsSolid) // destroy brick
                 {
                     box.Destroyed = true;
+                }
+
+                // Collision resolution
+
+                Direction dir = std::get<1>(collision);
+                glm::vec2 diff = std::get<2>(collision);
+
+                if (dir == LEFT || dir == RIGHT) // horizontal collision
+                {
+                    // reverse horizontal direction
+                    Ball->Velocity.x = -Ball->Velocity.x;
+
+                    // push ball out horizontally
+                    float penetration = Ball->Radius - std::abs(diff.x);
+                    if (dir == LEFT) // ball came from right side of brick
+                    {
+                        Ball->Position.x += penetration;
+                    }
+                    else // ball came from left side of brick
+                    {
+                        Ball->Position.x -= penetration;
+                    }
+                }
+                else // vertical collision
+                {
+                    // reverse vertical direction
+                    Ball->Velocity.y = -Ball->Velocity.y;
+
+                    float penetration = Ball->Radius - std::abs(diff.y);
+                    if (dir == UP) // ball came from top of brick
+                    {
+                        Ball->Position.y -= penetration;
+                    }
+                    else // ball came from bottom of brick
+                    {
+                        Ball->Position.y += penetration;
+                    }
                 }
             }
         }
