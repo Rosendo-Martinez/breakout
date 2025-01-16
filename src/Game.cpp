@@ -2,6 +2,7 @@
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
 #include "BallObject.h"
+#include "ParticleGenerator.h"
 #include <tuple>
 
 typedef std::tuple<bool, Direction, glm::vec2> Collision;   
@@ -101,6 +102,8 @@ Game::~Game()
 
 SpriteRenderer *Renderer;
 
+ParticleGenerator *Particles;
+
 void Game::Init()
 {
     // Load & configure resources
@@ -139,6 +142,12 @@ void Game::Init()
     // Ball
     glm::vec2 ballPos = playerPos + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -BALL_RADIUS * 2.0f);
     Ball = new BallObject(ballPos, BALL_RADIUS, INITIAL_BALL_VELOCITY, ResourceManager::GetTexture("face"));
+
+    // Particle generator
+    ResourceManager::LoadTexture("textures/particle.png", true, "particle");
+    ResourceManager::LoadShader("shaders/particle.vs", "shaders/particle.fs", nullptr, "particle");
+    ResourceManager::GetShader("particle").SetMatrix4("projection", projection);
+    Particles = new ParticleGenerator(ResourceManager::GetShader("particle"), ResourceManager::GetTexture("particle"), 500);
 }
 
 void Game::ProcessInput(float dt)
@@ -196,6 +205,8 @@ void Game::Update(float dt)
     Ball->Move(dt, this->Width);
     this->DoCollisions();
 
+    Particles->Update(dt, *Ball, 2, glm::vec2(Ball->Radius / 2.0f));
+
     if (Ball->Position.y >= this->Height) // player lost ball
     {
         this->ResetLevel();
@@ -215,6 +226,9 @@ void Game::Render()
 
         // draw player (paddle)
         Player->Draw(*Renderer);
+
+        // draw particles
+        Particles->Draw();
 
         // draw ball
         Ball->Draw(*Renderer);

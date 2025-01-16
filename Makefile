@@ -15,8 +15,8 @@ all : ./bin/main.exe
 ./bin/SpriteRenderer.o : ./src/Shader.h ./src/Texture.h
 	g++ -c ./src/SpriteRenderer.cpp -o ./bin/SpriteRenderer.o -I./dep/glad/include -I./dep/
 
-./bin/main.exe : ./src/Game.h ./src/ResourceManager.h ./bin/Game.o ./bin/Texture.o ./bin/Shader.o ./bin/ResourceManager.o ./bin/SpriteRenderer.o ./bin/GameLevel.o ./bin/GameObject.o ./bin/BallObject.o
-	g++ ./src/main.cpp ./dep/glad/src/glad.c  ./bin/Game.o ./bin/Texture.o ./bin/Shader.o ./bin/ResourceManager.o ./bin/SpriteRenderer.o ./bin/GameLevel.o ./bin/GameObject.o ./bin/BallObject.o -o ./bin/main.exe -I./dep/glad/include -I./dep/ -lglfw -ldl
+./bin/main.exe : ./src/Game.h ./src/ResourceManager.h ./bin/Game.o ./bin/Texture.o ./bin/Shader.o ./bin/ResourceManager.o ./bin/SpriteRenderer.o ./bin/GameLevel.o ./bin/GameObject.o ./bin/BallObject.o ./bin/ParticleGenerator.o
+	g++ ./src/main.cpp ./dep/glad/src/glad.c  ./bin/Game.o ./bin/Texture.o ./bin/Shader.o ./bin/ResourceManager.o ./bin/SpriteRenderer.o ./bin/GameLevel.o ./bin/GameObject.o ./bin/BallObject.o ./bin/ParticleGenerator.o -o ./bin/main.exe -I./dep/glad/include -I./dep/ -lglfw -ldl
 
 ./bin/GameLevel.o : ./src/GameLevel.h ./src/GameLevel.cpp
 	g++ -c ./src/GameLevel.cpp -o ./bin/GameLevel.o -I./dep/glad/include -I./dep/
@@ -26,6 +26,9 @@ all : ./bin/main.exe
 
 ./bin/BallObject.o : ./src/BallObject.h ./src/BallObject.cpp 
 	g++ -c ./src/BallObject.cpp -o ./bin/BallObject.o -I./dep/glad/include -I./dep/
+
+./bin/ParticleGenerator.o : ./src/ParticleGenerator.cpp ./src/ParticleGenerator.h
+	g++ -c ./src/ParticleGenerator.cpp -o ./bin/ParticleGenerator.o -I./dep/glad/include -I./dep/
 
 clean:
 	rm -f ./bin/*.o ./bin/main.exe
