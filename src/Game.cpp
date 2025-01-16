@@ -146,7 +146,7 @@ void Game::Init()
     // Particle generator
     ResourceManager::LoadTexture("textures/particle.png", true, "particle");
     ResourceManager::LoadShader("shaders/particle.vs", "shaders/particle.fs", nullptr, "particle");
-    ResourceManager::GetShader("particle").SetMatrix4("projection", projection);
+    ResourceManager::GetShader("particle").Use().SetMatrix4("projection", projection);
     Particles = new ParticleGenerator(ResourceManager::GetShader("particle"), ResourceManager::GetTexture("particle"), 500);
 }
 
